@@ -1,0 +1,76 @@
+.Dd $Mdocdate$
+.Dt PICK 1
+.Os
+.Sh NAME
+.Nm pick
+.Nd pick some of several arguments
+.Sh SYNOPSIS
+.Nm
+.Op Fl asny
+.Op Ar arg ...
+.Sh DESCRIPTION
+The
+.Nm
+command allows the user interactively select a subset of the
+command line argument list, and outputs to
+.Ar stdout
+the selection made.
+.Pp
+The
+.Nm
+program proceeds asking, one by one, the list of arguments
+passed in the command line, and selects them or not, depending on
+the response given by the user, and the options set in the
+command line.
+The input is assumed to come in from
+.Ar stdin .
+.Pp
+The program allows the uses to press an answer starting with
+.Cm Y ,
+.Cm y ,
+.Cm N ,
+.Cm n
+or empty string. (this assumes the default entry ``yes'',
+if you specified
+.Fl y
+in the command line, and ``no'', if you specified
+.Fl n
+in the command line)
+.Sh OPTIONS
+.Bl -tag
+.It Fl a
+With this option, the program adds the options to an initially
+empty list.
+.It Fl s
+With this option, the
+.Nm
+tool subtracts the options from an initially full list.
+.It Fl y
+The
+.Nm
+command assumes a default answer of ``yes'' to the question
+which is answered hitting the return key.
+.It Fl n
+The
+.Nm
+command assumes a default answer of ``no'' to the question
+which is answered hitting the return key.
+.El
+.Sh SAMPLE
+The following is a sample run of the command, with some options:
+.Bd -literal
+$ pick -ay a b c d e f
+a? 
+b? y
+c? n
+d? 
+e? y
+f? n
+a
+b
+d
+e
+$ _
+.Ed
+.Sh AUTHOR
+.An "Luis Colorado" Mt <luis.colorado.urcola@gmail.com>
