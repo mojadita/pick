@@ -17,16 +17,16 @@
 #define SUB          ('y' ^ 'n')
 
 char **pick(
-		char **argv_r,
-		int    defop,
-		int    add_sub)
+        char **argv_r,
+        int    defop,
+        int    add_sub)
 {
     char **saved  = argv_r,
          **argv_l = argv_r;
 
     for (; *argv_r; argv_r++) {
         char line[64],
-			*aux;
+            *aux;
         do {
             fprintf(stderr, "%s? ", *argv_r);
             if (!fgets(line, sizeof line, stdin))
@@ -34,12 +34,12 @@ char **pick(
             aux = strtok(line, " \t\n");
         } while (aux && (aux = strchr("yYnN", *aux)) == NULL);
 
-		int op = (aux ? tolower(*aux) : defop) ^ add_sub;
-				
-		if (op == 'y') { /* add */
-			if (argv_l != argv_r)
-				*argv_l = *argv_r;
-			argv_l++;
+        int op = (aux ? tolower(*aux) : defop) ^ add_sub;
+
+        if (op == 'y') { /* add */
+            if (argv_l != argv_r)
+                *argv_l = *argv_r;
+            argv_l++;
         }
     }
     /* copy last null */
@@ -51,19 +51,19 @@ char **pick(
 
 int main(int argc, char **argv)
 {
-	int opt,
-		def     = 'y',
-		add_sub = 0;
+    int opt,
+        def     = 'y',
+        add_sub = 0;
 
-	while ((opt = getopt(argc, argv, "asny")) != EOF) {
-		switch (opt) {
-		case 'a': add_sub = ADD; break;
-		case 's': add_sub = SUB; break;
-		case 'n': def     = 'n'; break; /* 'default' is no */
-		case 'Y': def     = 'y'; break; /* 'default' is yes */
-		}
-	}
-	argc -= optind; argv += optind;
+    while ((opt = getopt(argc, argv, "asny")) != EOF) {
+        switch (opt) {
+        case 'a': add_sub = ADD; break;
+        case 's': add_sub = SUB; break;
+        case 'n': def     = 'n'; break; /* 'default' is no */
+        case 'Y': def     = 'y'; break; /* 'default' is yes */
+        }
+    }
+    argc -= optind; argv += optind;
 
     argv = pick(argv, def, add_sub);
 

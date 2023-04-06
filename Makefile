@@ -21,7 +21,7 @@ DMOD              ?= -m 0755     # directories modes
 GROFF             ?= groff
 RM	              ?= -rm -f
 INSTALL           ?= install
-IFLAGS            ?= -o root -g root
+IFLAGS            ?= -o root -g wheel
 GROFF             ?= groff
 
 pick_deps = 
