@@ -7,6 +7,14 @@
 targets            = pick pick.1.gz
 toclean            = $(targets)
 
+OS                != uname -o
+
+OWN-FreeBSD        = root
+GRP-FreeBSD        = wheel
+
+OWN-GNU/Linux      = bin
+GRP-GNU/Linux      = bin
+
 prefix            ?= /usr/local
 exec_prefix       ?= $(prefix)
 bindir            ?= $(exec_prefix)/bin
@@ -21,7 +29,7 @@ DMOD              ?= -m 0755     # directories modes
 GROFF             ?= groff
 RM	              ?= -rm -f
 INSTALL           ?= install
-IFLAGS            ?= -o root -g wheel
+IFLAGS            ?= -o $(OWN-$(OS)) -g $(OWN-$(OS))
 GROFF             ?= groff
 
 pick_deps = 
