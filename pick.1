@@ -6,70 +6,90 @@
 .Nd pick some of several arguments
 .Sh SYNOPSIS
 .Nm
-.Op Fl asny
+.Op Fl t Ar interactive_device
+.Op Fl i Ar input_file
 .Op Ar arg ...
 .Sh DESCRIPTION
 The
 .Nm
 command allows the user interactively select a subset of the
-command line argument list, and outputs to
+command line argument list (or input from file), and outputs to
 .Ar stdout
 the selection made.
 .Pp
 The
 .Nm
 program proceeds asking, one by one, the list of arguments
-passed in the command line, and selects them or not, depending on
+passed in the command line (or from the
+.Ar interactive_device
+specified in
+.Fl t
+option, see below), and selects them or not, depending on
 the response given by the user, and the options set in the
-command line.
-The input is assumed to come in from
-.Ar stdin .
+command line (or the input file).
+The input options are assumed to come from the argument list in
+the command line, or if no selection is made in the command
+arguments, it will be read from
+.Ar stdin ,
+of from the input file indicated in the
+.Fl i
+option.
 .Pp
-The program allows the uses to press an answer starting with
+The
+.Nm
+command opens
+.Ar /dev/tty
+to read input, or the device|file specified with the
+.Fl t Ar interactive_device
+option.
+.Pp
+The 
+.Nm
+program allows the uses to press an answer starting with
 .Cm Y ,
 .Cm y ,
 .Cm N ,
-.Cm n
-or empty string. (this assumes the default entry ``yes'',
-if you specified
-.Fl y
-in the command line, and ``no'', if you specified
-.Fl n
-in the command line)
+.Cm n ,
+.Cm Q
+or
+.Cm q .
+If you don't provide an answer in this set, the program will
+insist you until you provide a valid answer, or you interrupt
+the program (with Control-C or by answering \fI'q'\fP)
 .Sh OPTIONS
 .Bl -tag
-.It Fl a
-With this option, the program adds the options to an initially
-empty list.
-.It Fl s
-With this option, the
-.Nm
-tool subtracts the options from an initially full list.
-.It Fl y
-The
-.Nm
-command assumes a default answer of ``yes'' to the question
-which is answered hitting the return key.
-.It Fl n
-The
-.Nm
-command assumes a default answer of ``no'' to the question
-which is answered hitting the return key.
+.It Fl t Ar interactive_device
+with this option the program opens an alternate interactive device/file
+to read answers from.
+Normally, the program is run interactively (no idea of how can this program
+be useful with noninteractive input) so it opens the default (\c
+.Ar /dev/tty )
+devide.
+This option just allows you to specify a different device.
+It is open for reading and writing and it outputs the prompts to this
+device, and reads input from it.
+.It Fl i Ar input_file
+You can explicitly specify an input file for options reading by using this
+option.
+The program will read the input options from this file and will use them.
+If you specify options in the command argument list, then this option will
+be ignored.
 .El
 .Sh SAMPLE
 The following is a sample run of the command, with some options:
 .Bd -literal
-$ pick -ay a b c d e f
+$ pick a b c d e f
 a? 
+a? y
+a
 b? y
+b
 c? n
 d? 
+d? n
 e? y
-f? n
-a
-b
-d
 e
+f? n
 $ _
 .Ed
 .Sh AUTHOR

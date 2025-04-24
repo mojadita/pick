@@ -22,9 +22,10 @@ datarootdir       ?= $(prefix)/share
 mandir            ?= $(datarootdir)/man
 man1dir           ?= $(mandir)/man1
 
-XMOD              ?= -m 0755     # binary files
-MMOD              ?= -m 0644     # manual page files
-DMOD              ?= -m 0755     # directories modes
+XMOD              ?= -m 0755
+MMOD              ?= -m 0644
+DMOD              ?= -m 0755
+FMOD              ?= -m 0644
 
 GROFF             ?= groff
 RM	              ?= -rm -f
@@ -38,14 +39,21 @@ pick_ldlf =
 pick_libs =
 toclean += $(pick_objs)
 
+toinstall += $(bindir)/pick $(man1dir)/pick.1.gz
+
 all: $(targets)
 clean:
 	$(RM) $(toclean)
-install: $(targets)
-	$(INSTALL) $(IFLAGS) $(DMOD) -d $(bindir)
-	$(INSTALL) $(IFLAGS) $(DMOD) -d $(man1dir)
-	$(INSTALL) $(IFLAGS) $(XMOD) pick $(bindir)
-	$(INSTALL) $(IFLAGS) $(XMOD) pick.1.gz $(man1dir)
+install: $(toinstall)
+deinstall uninstall:
+	$(RM) $(toinstall)
+
+$(bindir)/%: % $(bindir)
+	$(INSTALL) $(IFLAGS) $(XMOD) $< $@
+$(man1dir)/%: % $(man1dir)
+	$(INSTALL) $(IFLAGS) $(FMOD) $< $@
+$(bindir) $(man1dir):
+	$(INSTALL) $(IFLAGS) $(DMOD) -d $@
 
 pick: $(pick_deps) $(pick_objs)
 	$(CC) -o $@ $(LDFLAGS) $($@_ldfl) $($@_objs) $($@_libs) $(LIBS)

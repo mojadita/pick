@@ -8,67 +8,90 @@
  */
 
 #include <ctype.h>
+#include <errno.h>
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define ADD          (0)
-#define SUB          ('y' ^ 'n')
+#define F(_fmt)  "%s:%d:%s: "_fmt, __FILE__, __LINE__, __func__
 
-char **pick(
-        char **argv_r,
-        int    defop,
-        int    add_sub)
+char *pick(char *arg, FILE *io)
 {
-    char **saved  = argv_r,
-         **argv_l = argv_r;
+	char               line[1024];
+	char              *s;
+	static const char *ynq = "ynq";
 
-    for (; *argv_r; argv_r++) {
-        char line[64],
-            *aux;
-        do {
-            fprintf(stderr, "%s? ", *argv_r);
-            if (!fgets(line, sizeof line, stdin))
-                return NULL;
-            aux = strtok(line, " \t\n");
-        } while (aux && (aux = strchr("yYnN", *aux)) == NULL);
+	do {
+		fprintf(io, "%s? ", arg);
+		fflush(io);
 
-        int op = (aux ? tolower(*aux) : defop) ^ add_sub;
+		if (!fgets(line, sizeof line, io)) {
+			fprintf(stderr,
+				F("EOF on interactive input descriptor\n"));
+			exit(EXIT_FAILURE);
+		}
+		s = strtok(line, " \t\n");
+		if (s && !strchr(ynq, tolower(s[0]))) {
+			fprintf(io,
+				F("Please, answer only [%s]\n"),
+				ynq);
+		}
+	} while (!s || !strchr(ynq, tolower(s[0])));
+	/* s && strchr(ynq, tolower(s[0])) */
 
-        if (op == 'y') { /* add */
-            if (argv_l != argv_r)
-                *argv_l = *argv_r;
-            argv_l++;
-        }
-    }
-    /* copy last null */
-    if (argv_l != argv_r) {
-        *argv_l = *argv_r;
-    }
-    return saved;
-}
+	switch (s[0]) {
+	case 'y': puts(arg);          break;
+	case 'n':                     break;
+	case 'q': exit(EXIT_SUCCESS); break;
+	}
+} /* pick */
 
 int main(int argc, char **argv)
 {
-    int opt,
-        def     = 'y',
-        add_sub = 0;
+	int opt;
+	char *sel_input = "/dev/tty",
+	     *dat_input = NULL;
 
-    while ((opt = getopt(argc, argv, "asny")) != EOF) {
-        switch (opt) {
-        case 'a': add_sub = ADD; break;
-        case 's': add_sub = SUB; break;
-        case 'n': def     = 'n'; break; /* 'default' is no */
-        case 'Y': def     = 'y'; break; /* 'default' is yes */
-        }
-    }
-    argc -= optind; argv += optind;
+	while ((opt = getopt(argc, argv, "t:i:")) != EOF) {
+		switch (opt) {
+		case 't': sel_input = optarg; break;
+		case 'i': dat_input = optarg; break;
+		}
+	}
+	argc -= optind;
+	argv += optind;
 
-    argv = pick(argv, def, add_sub);
+	FILE *ans_in = fopen(sel_input, "r+");
+	if (!ans_in) {
+		fprintf(stderr, F("%s: %s\n"),
+			sel_input, strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-    for (;*argv; argv++)
-        printf("%s\n", *argv);
+	if (argc) {
+		/* choices are program parameters */
+		for (int i = 0; i < argc; i++) {
+			pick(argv[i], ans_in);
+		}
+	} else {
+		char line[1024];
+		/* choices are read from input file */
+		FILE *dat_in = stdin;
+		if (dat_input) {
+			dat_in = fopen(dat_input, "r");
+			if (!dat_in) {
+				fprintf(stderr, F("%s: %s\n"),
+					dat_input,
+					strerror(errno));
+				exit(EXIT_FAILURE);
+			}
+		}
+		while (fgets(line, sizeof line, dat_in)) {
+			char *choice = strtok(line, "\n");
+			pick(choice, ans_in);
+		}
+	}
 
     return 0;
 }
