@@ -30,7 +30,7 @@ FMOD              ?= -m 0644
 GROFF             ?= groff
 RM	              ?= -rm -f
 INSTALL           ?= install
-IFLAGS            ?= -o $(OWN-$(OS)) -g $(OWN-$(OS))
+IFLAGS            ?= -o $(OWN-$(OS)) -g $(GRP-$(OS))
 GROFF             ?= groff
 
 pick_deps = 
@@ -48,10 +48,12 @@ install: $(toinstall)
 deinstall uninstall:
 	$(RM) $(toinstall)
 
-$(bindir)/%: % $(bindir)
-	$(INSTALL) $(IFLAGS) $(XMOD) $< $@
-$(man1dir)/%: % $(man1dir)
-	$(INSTALL) $(IFLAGS) $(FMOD) $< $@
+$(bindir)/pick: pick $(bindir)
+	$(INSTALL) $(IFLAGS) $(XMOD) pick $@
+
+$(man1dir)/pick.1.gz: pick.1.gz $(man1dir)
+	$(INSTALL) $(IFLAGS) $(FMOD) pick.1.gz $@
+
 $(bindir) $(man1dir):
 	$(INSTALL) $(IFLAGS) $(DMOD) -d $@
 

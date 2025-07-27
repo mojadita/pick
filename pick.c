@@ -16,7 +16,7 @@
 
 #define F(_fmt)  "%s:%d:%s: "_fmt, __FILE__, __LINE__, __func__
 
-char *pick(char *arg, FILE *io)
+void pick(char *arg, FILE *io)
 {
 	char               line[1024];
 	char              *s;
